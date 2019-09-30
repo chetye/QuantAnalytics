@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.489
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "QuantanalyticsPython", "QuantanalyticsPython\QuantanalyticsPython\QuantanalyticsPython.pyproj", "{D80C3F4D-3F0F-43C0-B447-EE0E5C35DC66}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QuantanalyticsCPP", "QuantanalyticsCPP\QuantanalyticsCPP\QuantanalyticsCPP.vcxproj", "{E37F551D-F9C8-4229-B928-300EC0222CB1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D80C3F4D-3F0F-43C0-B447-EE0E5C35DC66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D80C3F4D-3F0F-43C0-B447-EE0E5C35DC66}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D80C3F4D-3F0F-43C0-B447-EE0E5C35DC66}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D80C3F4D-3F0F-43C0-B447-EE0E5C35DC66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D80C3F4D-3F0F-43C0-B447-EE0E5C35DC66}.Release|x64.ActiveCfg = Release|Any CPU
+		{D80C3F4D-3F0F-43C0-B447-EE0E5C35DC66}.Release|x86.ActiveCfg = Release|Any CPU
+		{E37F551D-F9C8-4229-B928-300EC0222CB1}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{E37F551D-F9C8-4229-B928-300EC0222CB1}.Debug|x64.ActiveCfg = Debug|x64
+		{E37F551D-F9C8-4229-B928-300EC0222CB1}.Debug|x64.Build.0 = Debug|x64
+		{E37F551D-F9C8-4229-B928-300EC0222CB1}.Debug|x86.ActiveCfg = Debug|Win32
+		{E37F551D-F9C8-4229-B928-300EC0222CB1}.Debug|x86.Build.0 = Debug|Win32
+		{E37F551D-F9C8-4229-B928-300EC0222CB1}.Release|Any CPU.ActiveCfg = Release|Win32
+		{E37F551D-F9C8-4229-B928-300EC0222CB1}.Release|x64.ActiveCfg = Release|x64
+		{E37F551D-F9C8-4229-B928-300EC0222CB1}.Release|x64.Build.0 = Release|x64
+		{E37F551D-F9C8-4229-B928-300EC0222CB1}.Release|x86.ActiveCfg = Release|Win32
+		{E37F551D-F9C8-4229-B928-300EC0222CB1}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2BD79B6B-0670-484A-BF06-E418AE400834}
+	EndGlobalSection
+EndGlobal
