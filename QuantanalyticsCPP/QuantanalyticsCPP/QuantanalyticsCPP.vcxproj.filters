@@ -1,22 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Marketadata">
+      <UniqueIdentifier>{d7a97691-d879-4f59-a114-8c0e0587bf31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Curve">
+      <UniqueIdentifier>{86192fbf-b86a-4a81-ad76-198a60b70f0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Date">
+      <UniqueIdentifier>{356c645b-0a11-416d-8b55-49c288e2fba9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Quantanalytics.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Marketdata.cpp">
+      <Filter>Marketadata</Filter>
     </ClCompile>
+    <ClCompile Include="Quantanalytics.cpp" />
+    <ClCompile Include="Date.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Marketdata.h">
+      <Filter>Marketadata</Filter>
+    </ClInclude>
+    <ClInclude Include="Date.h" />
   </ItemGroup>
 </Project>
