@@ -123,7 +123,7 @@ namespace date
   {
     // Algo
     // 1. Add the days to m_days
-    // 2. While m_days > days_in_month() and m_days -= days_in_month() > 0
+    // 2. While m_days > days_in_month() and m_days - days_in_month() > 0
     //    m_days -= days_in_month()
     //    m_month = m_month + 1 > 12 ? 1 : m_month + 1
     //    m_year = m_month == 1 ? m_year + 1 : m_year
@@ -153,9 +153,9 @@ namespace date
 
     while (m_day < 1)
     {
-      m_day += days_in_month(m_month, m_year);
       m_month = m_month - 1 > 0 ? m_month - 1 : 12;
       m_year = m_month == 12 ? m_year - 1 : m_year;
+      m_day += days_in_month(m_month, m_year);
     };
 
     return *this;

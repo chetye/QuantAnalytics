@@ -14,10 +14,11 @@ int main()
 
   for (int i = 0; i < 30; i++)
   {
-    d = d - i;
-    cout << "-" << i << "D : " << d << " | ";
-    d = d + i;
-    cout << "-" << i << "D : " << d << endl;
+    int add_subtract = i*100;
+    d = d - add_subtract;
+    cout << "-" << add_subtract << "D : " << d << " | ";
+    d = d + add_subtract;
+    cout << "+" << add_subtract << "D : " << d << endl;
   }
 
 	system("pause");
