@@ -3,18 +3,22 @@
 #include <set>
 #include <vector>
 #include <map>
+#include <sstream>
 using namespace std;
+
+#include "Constants.h"
 
 namespace date
 {
   enum DayCountConvention
   {
     NONE_CONVENTION,
-    ACTUAL_360,
-    ACTUAL_365,
-    D30_360,
-    D30_365
+    ACT_360,
+    ACT_365,
+    D30_360
   };
+
+  ostream& operator<<(ostream& os, DayCountConvention dc);
 
   enum HolidayCenter
   {
@@ -23,6 +27,8 @@ namespace date
     NEW_YORK = 2,
     LONDON = 3
   };
+
+  ostream& operator<<(ostream& os, HolidayCenter hc);
 
   enum TenorUnit
   {
@@ -33,14 +39,30 @@ namespace date
     YEAR
   };
 
+  ostream& operator<<(ostream& os, TenorUnit dc);
+
   enum DateRollConvention
   {
+    MODIFIED_PRECEEDING = -1,
     NONE_DATEROLL = 0,
-    FOLLOWING = 1,
-    PRECEEDING = -1,
     MODIFIED_FOLLOWING = 1,
-    MODIFIED_PRECEEDING = -1
+    FOLLOWING,
+    PRECEEDING,
   };
+
+  ostream& operator<<(ostream& os, DateRollConvention dr);
+
+  enum FlowFrequency
+  {
+    NONE_FREQUENCY,
+    DAILY = 1,
+    MONTHLY = 30,
+    QUARTERLY = 90,
+    SEMI_ANNUAL = 180,
+    ANNUAL = 365
+  };
+
+  ostream& operator<<(ostream& os, FlowFrequency ff);
 
   class Date;
   class Holidays
@@ -52,6 +74,7 @@ namespace date
     Holidays();
     Holidays(HolidayCenter h, ...); // function with variadic arguments 
     bool is_holiday(Date d) const;
+    bool is_weekday(Date d) const;
   };
 
   class Tenor
@@ -64,6 +87,7 @@ namespace date
     DateRollConvention m_dateroll;
   public:
     Tenor(string tenor_string, Holidays holidays, DateRollConvention dateroll);
+    Tenor(FlowFrequency fq, Holidays holidays, DateRollConvention dateroll);
     Date get_start_date(const Date& start_date) const;
     Date get_end_date(const Date& start_date) const;
   };
@@ -92,7 +116,12 @@ namespace date
     Date operator-(const long & days_to_subtract) const;
     Date operator+(const Tenor& tenor_to_add) const;
     Date operator-(const Tenor& tenor_to_subtract) const;
+    long operator-(const Date& d) const;
     bool operator<(const Date& d) const;
+
+    // utility functions
+    double accrual_factor(Date expiry, DayCountConvention dc) const;
+    void dump(ostream& os) const;
 
     ~Date();
   };

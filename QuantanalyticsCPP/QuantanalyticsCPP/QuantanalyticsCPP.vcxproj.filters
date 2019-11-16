@@ -20,12 +20,19 @@
       <Filter>Marketadata</Filter>
     </ClCompile>
     <ClCompile Include="Quantanalytics.cpp" />
-    <ClCompile Include="Date.cpp" />
+    <ClCompile Include="Date.cpp">
+      <Filter>Date</Filter>
+    </ClCompile>
+    <ClCompile Include="Flow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Marketdata.h">
       <Filter>Marketadata</Filter>
     </ClInclude>
-    <ClInclude Include="Date.h" />
+    <ClInclude Include="Date.h">
+      <Filter>Date</Filter>
+    </ClInclude>
+    <ClInclude Include="Flow.h" />
+    <ClInclude Include="Constants.h" />
   </ItemGroup>
 </Project>

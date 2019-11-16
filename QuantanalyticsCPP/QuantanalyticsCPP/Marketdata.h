@@ -3,6 +3,8 @@
 #include <string>
 using namespace std;
 
+#include "Constants.h"
+
 namespace Marketdata
 {
 	enum MarketdataType

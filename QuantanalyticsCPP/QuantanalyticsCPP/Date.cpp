@@ -1,4 +1,5 @@
 #include "Date.h"
+#include "Flow.h"
 #include <sstream>
 #include <cstdarg>
 using namespace std;
@@ -6,6 +7,171 @@ using namespace std;
 namespace date
 {
   map<HolidayCenter, set<Date> > Holidays::holiday_registry;
+
+  ostream & operator<<(ostream & os, DayCountConvention dc)
+  {
+    switch (dc)
+    {
+    case ACT_360:
+    {
+      os << "ACT_360";
+      break;
+    }
+    case ACT_365:
+    {
+      os << "ACT_365";
+      break;
+    }
+    case D30_360:
+    {
+      os << "D30_360";
+      break;
+    }
+    case NONE_CONVENTION:
+    {
+      os << "NONE_CONVENTION";
+      break;
+    }
+    }
+
+    return os;
+  }
+
+  ostream & operator<<(ostream & os, DateRollConvention dr)
+  {
+    switch (dr)
+    {
+    case NONE_DATEROLL:
+    {
+      os << "NONE_DATEROLL";
+      break;
+    }
+    case FOLLOWING:
+    {
+      os << "FOLLOWING";
+      break;
+    }
+    case PRECEEDING:
+    {
+      os << "PRECEEDING";
+      break;
+    }
+    case MODIFIED_FOLLOWING:
+    {
+      os << "MODIFIED_FOLLOWING";
+      break;
+    }
+    case MODIFIED_PRECEEDING:
+    {
+      os << "MODIFIED_PRECEEDING";
+      break;
+    }
+    }
+
+    return os;
+  }
+
+  ostream & operator<<(ostream & os, HolidayCenter hc)
+  {
+    switch (hc)
+    {
+    case NONE_HOLIDAY:
+    {
+      os << "NONE_HOLIDAY";
+      break;
+    }
+    case TOKYO:
+    {
+      os << "TOKYO";
+      break;
+    }
+    case NEW_YORK:
+    {
+      os << "NEW_YORK";
+      break;
+    }
+    case LONDON:
+    {
+      os << "LONDON";
+      break;
+    }
+    }
+
+    return os;
+  }
+
+  ostream& operator<<(ostream& os, TenorUnit tu)
+  {
+    switch (tu)
+    {
+    case NONE_TENOR:
+    {
+      os << "NONE_TENOR";
+      break;
+    }
+    case DAY:
+    {
+      os << "DAY";
+      break;
+    }
+    case WEEK:
+    {
+      os << "WEEK";
+      break;
+    }
+    case MONTH:
+    {
+      os << "MONTH";
+      break;
+    }
+    case YEAR:
+    {
+      os << "YEAR";
+      break;
+    }
+    }
+
+    return os;
+  }
+
+  ostream & operator<<(ostream & os, FlowFrequency ff)
+  {
+    switch (ff)
+    {
+    case NONE_FREQUENCY:
+    {
+      os << "NONE_FREQUENCY";
+      break;
+    }
+    case DAILY:
+    {
+      os << "DAILY";
+      break;
+    }
+    case MONTHLY:
+    {
+      os << "MONTHLY";
+      break;
+    }
+    case QUARTERLY:
+    {
+      os << "QUARTERLY";
+      break;
+    }
+    case SEMI_ANNUAL:
+    {
+      os << "SEMI_ANNUAL";
+      break;
+    }
+    case ANNUAL:
+    {
+      os << "ANNUAL";
+      break;
+    }
+    }
+
+    return os;
+  }
 
   Holidays::Holidays()
   {
@@ -55,6 +221,28 @@ namespace date
       }
     }
     return false;
+  }
+
+  bool Holidays::is_weekday(Date d) const
+  {
+    int day;
+
+    long yyyy = d.year();
+    long mm = d.month();
+    long dd = d.day();
+
+    static int t[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 };
+    yyyy -= mm < 3;
+    day = (yyyy + yyyy / 4 - yyyy / 100 + yyyy / 400 + t[mm - 1] + dd) % 7;
+
+    switch (day) 
+    {
+      case 0: // Sunday
+      case 6: // Saturday
+        return false;
+    }
+
+    return true;
   }
 
   Tenor::Tenor(string tenor_string, Holidays holidays, DateRollConvention dateroll)
@@ -134,6 +322,39 @@ namespace date
     }
   }
 
+  Tenor::Tenor(FlowFrequency fq, Holidays holidays, DateRollConvention dateroll)
+  {
+    switch (fq)
+    {
+    case NONE_FREQUENCY:
+    case DAILY:
+    {
+      this->Tenor::Tenor("1D", holidays, dateroll);
+      break;
+    }
+    case MONTHLY:
+    {
+      this->Tenor::Tenor("1M", holidays, dateroll);
+      break;
+    }
+    case QUARTERLY:
+    {
+      this->Tenor::Tenor("3M", holidays, dateroll);
+      break;
+    }
+    case SEMI_ANNUAL:
+    {
+      this->Tenor::Tenor("6M", holidays, dateroll);
+      break;
+    }
+    case ANNUAL:
+    {
+      this->Tenor::Tenor("1Y", holidays, dateroll);
+      break;
+    }
+    }
+  }
+
   Date Tenor::get_start_date(const Date& start_date) const
   {
     Date d = start_date;
@@ -192,7 +413,13 @@ namespace date
       d = d + 365 * m_multiplier; // should be later changed to currency specific convention
     }
     
-    // Check if the start date is holiday
+    // Check if the end date is weekday
+    while (!m_holidays.is_weekday(d))
+    {
+      d = d + 1;
+    };
+
+    // Check if the end date is holiday
     if (m_dateroll == MODIFIED_FOLLOWING || m_dateroll == MODIFIED_PRECEEDING)
     {
       while (m_holidays.is_holiday(d))
@@ -314,6 +541,41 @@ namespace date
     }
   }
 
+  double Date::accrual_factor(Date expiry, DayCountConvention dc) const
+  {
+    double accrual_factor = 0;
+
+    switch (dc)
+    {
+    case ACT_360:
+    {
+      long days_in_between = expiry - *this;
+      accrual_factor = days_in_between / 360;
+      break;
+    }
+    case ACT_365:
+    case NONE_CONVENTION:
+    {
+      long days_in_between = expiry - *this;
+      accrual_factor = (double)days_in_between / 365;
+      break;
+    }
+    case D30_360:
+    {
+      accrual_factor = ((m_year - expiry.year()) * 360 + (m_month - expiry.month()) * 30 + (m_day - expiry.day())) / 360;
+      break;
+    }
+    default:
+    {
+      string error_string = " does not seem to be in DDMMYYYY format";
+      std::exception(error_string.c_str());
+    }
+    }
+    
+
+    return accrual_factor;
+  }
+
   Date::~Date()
   {
   }
@@ -388,9 +650,33 @@ namespace date
   {
     Date d = *this;
 
+    return d;
+  }
 
+  long Date::operator-(const Date & d) const
+  {
+    long days = 0;
 
-    return Date();
+    if (*this < d)
+    {
+      Date d2 = d;
+      while (*this < d2)
+      {
+        d2 = d2 - 1;
+        days = days + 1;
+      };
+    }
+    else
+    {
+      Date d2 = d;
+      while (d2 < *this)
+      {
+        d2 = d2 + 1;
+        days = days + 1;
+      };
+    }
+
+    return days;
   }
 
   bool Date::operator<(const Date & d) const
@@ -399,21 +685,50 @@ namespace date
     {
       return true;
     }
+    else if (m_year > d.m_year)
+    {
+      return false;
+    }
     else if (m_month < d.m_month)
     {
       return true;
+    }
+    else if (m_month > d.m_month)
+    {
+      return false;
     }
     else if (m_day < d.m_day)
     {
       return true;
     }
+    else if (m_day > d.m_day)
+    {
+      return false;
+    }
+
     return false;
+  }
+
+  void Date::dump(ostream& os) const
+  {
+    os.width(2);
+    os.fill('0');
+    os << day();
+    os.width(1);
+    os << "-";
+    os.width(2);
+    os.fill('0');
+    os << month();
+    os.width(1);
+    os << "-";
+    os.width(2);
+    os.fill('0');
+    os << year();
   }
 
   ostream & operator<<(ostream & os, const Date & d)
   {
-    // TODO: insert return statement here
-    os << d.day() << "-" << d.month() << "-" << d.year();
+    d.dump(os);
     return os;
   }
 }

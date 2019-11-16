@@ -116,11 +116,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Date.cpp" />
+    <ClCompile Include="Flow.cpp" />
     <ClCompile Include="Marketdata.cpp" />
     <ClCompile Include="Quantanalytics.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="Date.h" />
+    <ClInclude Include="Flow.h" />
     <ClInclude Include="Marketdata.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
