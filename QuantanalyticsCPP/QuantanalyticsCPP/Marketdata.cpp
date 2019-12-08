@@ -1,13 +1,36 @@
 #include "Marketdata.h"
 
-namespace Marketdata
+namespace marketdata
 {
-  Marketdata::Marketdata()
+  Marketdata::Marketdata(date::Date market_date)
+    : m_type(NONE_MARKETDATA), m_market_date(market_date)
   {
   }
 
-
-  Marketdata::~Marketdata()
+  date::Date Marketdata::get_market_date() const
   {
+    return m_market_date;
+  }
+
+  void Marketdata::set_market_date(date::Date market_date)
+  {
+    m_market_date = market_date;
+  }
+
+  MarketdataType Marketdata::get_type() const
+  {
+    return m_type;
+  }
+
+  void Marketdata::dump(ostream & os) const
+  {
+    os << m_type << std::endl;
+    os << m_market_date << std::endl;
+  }
+
+  ostream & operator<<(ostream & os, const Marketdata & marketdata)
+  {
+    marketdata.dump(os);
+    return os;
   }
 }

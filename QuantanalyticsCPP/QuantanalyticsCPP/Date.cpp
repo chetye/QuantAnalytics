@@ -709,6 +709,43 @@ namespace date
     return false;
   }
 
+  bool Date::operator>(const Date & d) const
+  {
+    if (*this < d)
+    {
+      return false;
+    }
+
+    return true;
+  }
+
+  bool Date::operator<=(const Date & d) const
+  {
+    if (*this < d && *this == d)
+    {
+      return true;
+    }
+    return false;
+  }
+
+  bool Date::operator>=(const Date & d) const
+  {
+    if (*this > d && *this == d)
+    {
+      return true;
+    }
+    return false;
+  }
+
+  bool Date::operator==(const Date & d) const
+  {
+    if (m_year == d.m_year && m_month == d.m_month && m_day == d.m_day)
+    {
+      return true;
+    }
+    return false;
+  }
+
   void Date::dump(ostream& os) const
   {
     os.width(2);

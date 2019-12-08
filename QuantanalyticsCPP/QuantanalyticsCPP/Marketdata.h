@@ -4,28 +4,32 @@
 using namespace std;
 
 #include "Constants.h"
+#include "Marketdata_Helper.h"
+#include "Date.h"
 
-namespace Marketdata
+namespace marketdata
 {
-	enum MarketdataType
-	{
-		INTEREST_RATE_CURVE,
-		SWAPTION_VOLATILITY,
-		CAPLET_VOLATILITY, 
-    NONE
-	};
-
 	class Marketdata
 	{
   private:
     MarketdataType m_type;
-	public:
-    virtual MarketdataType get_type() { return NONE; };
-		virtual void read(const string marketdata_stream) = 0;
-    virtual void dump(string& marketdata_stream) = 0;
+    date::Date m_market_date;
 
-		Marketdata();
-		virtual ~Marketdata();
+	public:
+    // constructor
+    Marketdata(date::Date market_date);
+
+    // getter methods
+    date::Date get_market_date() const;
+
+    // setter methods
+    void set_market_date(date::Date market_date);
+
+    // utilities
+    virtual MarketdataType get_type() const;
+    void dump(ostream& os) const;
 	};
+
+  ostream& operator<<(ostream& os, const Marketdata& marketdata);
 }
 

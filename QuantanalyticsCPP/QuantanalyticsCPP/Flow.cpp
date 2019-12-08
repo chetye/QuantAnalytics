@@ -3,10 +3,8 @@
 namespace date
 {
   Flow::Flow(Date start_date, Date end_date, FlowType flow_type)
+    : m_start_date(start_date), m_end_date(end_date), m_type(flow_type)
   {
-    m_start_date = start_date;
-    m_end_date = end_date;
-    m_type = flow_type;
   }
 
   Date Flow::get_start_date() const
@@ -570,7 +568,7 @@ namespace date
       m_rates.push_back(0.0);
       m_margins.push_back(0.0);
     }
-    else
+    else if(number_of_flows == 0)
     {
       m_start_dates.push_back(m_start_date);
       m_fixing_start_dates.push_back(m_start_date);

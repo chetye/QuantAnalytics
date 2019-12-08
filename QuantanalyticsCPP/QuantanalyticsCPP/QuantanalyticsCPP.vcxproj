@@ -115,16 +115,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Curve.cpp" />
+    <ClCompile Include="Curve_Helper.cpp" />
     <ClCompile Include="Date.cpp" />
+    <ClCompile Include="Deposit.cpp" />
     <ClCompile Include="Flow.cpp" />
+    <ClCompile Include="Instrument.cpp" />
+    <ClCompile Include="Instrument_Helpers.cpp" />
     <ClCompile Include="Marketdata.cpp" />
+    <ClCompile Include="Marketdata_Helper.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Model_Helpers.cpp" />
     <ClCompile Include="Quantanalytics.cpp" />
+    <ClCompile Include="Swap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Curve.h" />
+    <ClInclude Include="Curve_Helper.h" />
     <ClInclude Include="Date.h" />
+    <ClInclude Include="Deposit.h" />
     <ClInclude Include="Flow.h" />
+    <ClInclude Include="Instrument.h" />
+    <ClInclude Include="Instrument_Helpers.h" />
     <ClInclude Include="Marketdata.h" />
+    <ClInclude Include="Marketdata_Helper.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="Model_Helpers.h" />
+    <ClInclude Include="Swap.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

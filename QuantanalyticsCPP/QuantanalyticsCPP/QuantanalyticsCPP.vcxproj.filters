@@ -8,11 +8,23 @@
     <Filter Include="Marketadata">
       <UniqueIdentifier>{d7a97691-d879-4f59-a114-8c0e0587bf31}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Curve">
-      <UniqueIdentifier>{86192fbf-b86a-4a81-ad76-198a60b70f0a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Date">
       <UniqueIdentifier>{356c645b-0a11-416d-8b55-49c288e2fba9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instrument">
+      <UniqueIdentifier>{c3a189b5-7ae2-47a5-ad70-92f1316376dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model">
+      <UniqueIdentifier>{62d1382e-725d-40c6-a41b-5910ddd77993}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pricer">
+      <UniqueIdentifier>{3a2bcbda-8028-49c8-aacf-a70574df874d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{ae704437-095f-4644-a815-013578ef964b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Marketadata\Curve">
+      <UniqueIdentifier>{86192fbf-b86a-4a81-ad76-198a60b70f0a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -23,7 +35,32 @@
     <ClCompile Include="Date.cpp">
       <Filter>Date</Filter>
     </ClCompile>
-    <ClCompile Include="Flow.cpp" />
+    <ClCompile Include="Instrument.cpp">
+      <Filter>Instrument</Filter>
+    </ClCompile>
+    <ClCompile Include="Flow.cpp">
+      <Filter>Date</Filter>
+    </ClCompile>
+    <ClCompile Include="Swap.cpp">
+      <Filter>Instrument</Filter>
+    </ClCompile>
+    <ClCompile Include="Deposit.cpp">
+      <Filter>Instrument</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Model_Helpers.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Instrument_Helpers.cpp">
+      <Filter>Instrument</Filter>
+    </ClCompile>
+    <ClCompile Include="Marketdata_Helper.cpp" />
+    <ClCompile Include="Curve.cpp">
+      <Filter>Marketadata\Curve</Filter>
+    </ClCompile>
+    <ClCompile Include="Curve_Helper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Marketdata.h">
@@ -32,7 +69,34 @@
     <ClInclude Include="Date.h">
       <Filter>Date</Filter>
     </ClInclude>
-    <ClInclude Include="Flow.h" />
-    <ClInclude Include="Constants.h" />
+    <ClInclude Include="Constants.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Instrument.h">
+      <Filter>Instrument</Filter>
+    </ClInclude>
+    <ClInclude Include="Flow.h">
+      <Filter>Date</Filter>
+    </ClInclude>
+    <ClInclude Include="Swap.h">
+      <Filter>Instrument</Filter>
+    </ClInclude>
+    <ClInclude Include="Deposit.h">
+      <Filter>Instrument</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model_Helpers.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Instrument_Helpers.h">
+      <Filter>Instrument</Filter>
+    </ClInclude>
+    <ClInclude Include="Marketdata_Helper.h" />
+    <ClInclude Include="Curve.h">
+      <Filter>Marketadata\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Curve_Helper.h" />
   </ItemGroup>
 </Project>

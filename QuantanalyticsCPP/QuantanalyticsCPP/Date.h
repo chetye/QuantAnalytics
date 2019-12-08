@@ -118,6 +118,10 @@ namespace date
     Date operator-(const Tenor& tenor_to_subtract) const;
     long operator-(const Date& d) const;
     bool operator<(const Date& d) const;
+    bool operator>(const Date& d) const;
+    bool operator<=(const Date& d) const;
+    bool operator>=(const Date& d) const;
+    bool operator==(const Date& d) const;
 
     // utility functions
     double accrual_factor(Date expiry, DayCountConvention dc) const;
