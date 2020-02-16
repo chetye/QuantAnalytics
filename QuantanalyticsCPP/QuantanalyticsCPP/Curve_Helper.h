@@ -4,6 +4,8 @@
 #include <sstream>
 using namespace std;
 
+#include <boost/shared_ptr.hpp>
+
 namespace marketdata
 {
   namespace curve
@@ -54,6 +56,7 @@ namespace marketdata
       }
 
       // utilities
+      void reset_y_values(const vector<Y>& y_values);
       bool check_valid(X x_value) const;
       virtual Y get_value(X x_value) const
       {
@@ -86,6 +89,7 @@ namespace marketdata
       }
 
       // utilities
+      void reset_y_values(const vector<Y>& y_values);
       bool check_valid(X x_value) const;
       virtual Y get_value(X x_value) const
       {
@@ -109,13 +113,14 @@ namespace marketdata
       InterpolationType m_interpolation_type;
       ExtrapolationType m_extrapolation_type;
 
-      Interpolation2D<X,Y> m_interpolator;
-      Extrapolation2D<X,Y> m_extrapolator;
+      boost::shared_ptr<Interpolation2D<X,Y> > m_interpolator;
+      boost::shared_ptr<Extrapolation2D<X,Y> > m_extrapolator;
     public:
       // Constructor
       InterpolationExtrapolation2D(vector<X> x_values, vector<Y> y_values, InterpolationType interp_type, ExtrapolationType extrp_type);
 
       // utilities
+      void reset_y_values(const vector<Y>& y_values);
       Y get_value(X x_value) const;
       InterpolationType get_interpolation() const;
       ExtrapolationType get_extrapolation() const;
@@ -165,6 +170,13 @@ namespace marketdata
     };
 
     template<class X, class Y>
+    inline void Interpolation2D<X, Y>::reset_y_values(const vector<Y>& y_values)
+    {
+      assert(m_y_values.size() == y_values.size());
+      m_y_values = y_values;
+    }
+
+    template<class X, class Y>
     inline bool Interpolation2D<X, Y>::check_valid(X x_value) const
     {
       if (this->m_x_values.empty())
@@ -182,6 +194,13 @@ namespace marketdata
       }
 
       return true;
+    }
+
+    template<class X, class Y>
+    inline void Extrapolation2D<X, Y>::reset_y_values(const vector<Y>& y_values)
+    {
+      assert(m_y_values.size() == y_values.size());
+      m_y_values = y_values;
     }
 
     template<class X, class Y>
@@ -252,7 +271,7 @@ namespace marketdata
 
       for (int i = 1; i < this->m_x_values.size(); i++)
       {
-        if (x_value >= this->m_x_values[i - 1] && x_value < this->m_x_values[i])
+        if (x_value >= this->m_x_values[i - 1] && x_value <= this->m_x_values[i])
         {
           Y y_value;
 
@@ -313,19 +332,17 @@ namespace marketdata
     InterpolationExtrapolation2D<X,Y>::InterpolationExtrapolation2D(vector<X> x_values, vector<Y> y_values
       , InterpolationType interpolation_type, ExtrapolationType extrapolation_type)
       : m_interpolation_type(interpolation_type), m_extrapolation_type(extrapolation_type)
-      , m_interpolator(Interpolation2D<X,Y>(vector<X>(), vector<Y>()))
-      , m_extrapolator(Extrapolation2D<X,Y>(vector<X>(), vector<Y>()))
     {
       switch (interpolation_type)
       {
       case FLAT_INTERPOLATION:
       {
-        m_interpolator = Flat_Interpolation2D<X,Y>(x_values, y_values);
+        m_interpolator.reset(new Flat_Interpolation2D<X,Y>(x_values, y_values));
         break;
       }
       case LINEAR_INTERPOLATION:
       {
-        m_interpolator = Linear_Interpolation2D<X, Y>(x_values, y_values);
+        m_interpolator.reset(new Linear_Interpolation2D<X, Y>(x_values, y_values));
         break;
       }
       default:
@@ -341,7 +358,7 @@ namespace marketdata
       {
       case FLAT_EXTRAPOLATION:
       {
-        m_extrapolator = Flat_Extrapolation2D<X, Y>(x_values, y_values);
+        m_extrapolator.reset(new Flat_Extrapolation2D<X, Y>(x_values, y_values));
         break;
       }
       default:
@@ -355,15 +372,22 @@ namespace marketdata
     }
 
     template<class X, class Y>
+    inline void InterpolationExtrapolation2D<X, Y>::reset_y_values(const vector<Y>& y_values)
+    {
+      m_interpolator->reset_y_values(y_values);
+      m_extrapolator->reset_y_values(y_values);
+    }
+
+    template<class X, class Y>
     inline Y InterpolationExtrapolation2D<X, Y>::get_value(X x_value) const
     {
-      if (m_interpolator.check_valid(x_value))
+      if (m_interpolator->check_valid(x_value))
       {
-        return m_interpolator.get_value(x_value);
+        return m_interpolator->get_value(x_value);
       }
       else 
       {
-        return m_extrapolator.get_value(x_value);
+        return m_extrapolator->get_value(x_value);
       }
     }
 

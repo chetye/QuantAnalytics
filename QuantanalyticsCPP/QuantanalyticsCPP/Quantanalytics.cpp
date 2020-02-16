@@ -84,17 +84,17 @@ int main()
     {
       Holidays japan_holidays(TOKYO, NEW_YORK);
       
-      vector<Instrument> instruments;
+      vector<Instrument_Ptr> instruments;
       for (int i = 1; i < 11; i++)
       {
         ostringstream tenor_stream;
         tenor_stream << i << "Y";
         Tenor tenor(tenor_stream.str(), japan_holidays, MODIFIED_FOLLOWING);
         Date end_date = start_date + tenor;
-        BulletFlow bullet_flow(start_date, end_date, japan_holidays, ACT_365, MODIFIED_FOLLOWING);
-        Deposit deposit(bullet_flow,"JPY");
+        BulletFlow bullet_flow(start_date, end_date, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i / 100.0);
+        Deposit_Ptr deposit_ptr(new Deposit(bullet_flow,"JPY"));
 
-        instruments.push_back(deposit);
+        instruments.push_back(deposit_ptr);
       }
 
       // jpy single curve system
@@ -103,14 +103,61 @@ int main()
       single_jpy_curve.bootstrap();
 
       cout << "JPY Single Curve" << endl;
-      cout << single_jpy_curve << endl;
+      single_jpy_curve.dump(cout);
+      // cout << single_jpy_curve << endl;
     }
 
     if (false)
     {
       Holidays japan_holidays(TOKYO, NEW_YORK);
 
-      vector<Instrument> jpy_discounting_instruments;
+      vector<Instrument_Ptr> jpy_discounting_instruments;
+      string jpy_ccy = "JPY";
+      for (int i = 1; i < 11; i++)
+      {
+        ostringstream tenor_stream;
+        tenor_stream << i << "Y";
+        Tenor tenor(tenor_stream.str(), japan_holidays, MODIFIED_FOLLOWING);
+        Date end_date = start_date + tenor;
+        BulletFlow bullet_flow(start_date, end_date, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i / 100.0);
+        Deposit_Ptr deposit_ptr(new Deposit(bullet_flow, jpy_ccy));
+
+        jpy_discounting_instruments.push_back(deposit_ptr);
+      }
+
+      vector<Instrument_Ptr> jpy_sa_forecasting_instruments;
+      for (int i = 0; i < 11; i++)
+      {
+        ostringstream tenor_stream;
+
+        tenor_stream << i << "Y";
+        Tenor tenor(tenor_stream.str(), japan_holidays, MODIFIED_FOLLOWING);
+        Date end_date = start_date + tenor;
+        FlowTable flow_table_leg1(start_date, end_date, SEMI_ANNUAL, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i / 2 / 100.0);
+        FlowTable flow_table_leg2(start_date, end_date, SEMI_ANNUAL, japan_holidays, ACT_365, MODIFIED_FOLLOWING, 0, i / 2 * 0.0001);
+
+        Swap_Ptr swap_ptr(new Swap(jpy_ccy, "", flow_table_leg1, jpy_ccy, "LIBOR", flow_table_leg2));
+        jpy_sa_forecasting_instruments.push_back(swap_ptr);
+      }
+
+      // jpy multi curve system
+      string index = "LIBOR";
+      Curve jpy_curve(start_date, "JPY", "", LINEAR_INTERPOLATION, FLAT_EXTRAPOLATION);
+      jpy_curve.add_curve(DISCOUNTING, index, jpy_discounting_instruments);
+      jpy_curve.add_curve(FORECASTING_SEMIANNUALY, index, jpy_sa_forecasting_instruments);
+
+      // boostrap the curve
+      jpy_curve.bootstrap();
+
+      cout << "JPY Curve details" << endl;
+      cout << jpy_curve << endl;
+    }
+
+    if (false)
+    {
+      Holidays japan_holidays(TOKYO, NEW_YORK);
+
+      vector<Instrument_Ptr> jpy_discounting_instruments;
       string jpy_ccy = "JPY";
       for (int i = 1; i < 11; i++)
       {
@@ -119,38 +166,39 @@ int main()
         Tenor tenor(tenor_stream.str(), japan_holidays, MODIFIED_FOLLOWING);
         Date end_date = start_date + tenor;
         BulletFlow bullet_flow(start_date, end_date, japan_holidays, ACT_365, MODIFIED_FOLLOWING);
-        Deposit deposit(bullet_flow, jpy_ccy);
+        Deposit_Ptr deposit_ptr(new Deposit(bullet_flow, jpy_ccy));
 
-        jpy_discounting_instruments.push_back(deposit);
+        jpy_discounting_instruments.push_back(deposit_ptr);
       }
 
-      vector<Instrument> jpy_sa_forecasting_instruments;
+      vector<Instrument_Ptr> jpy_sa_forecasting_instruments;
+      for (int i = 0; i < 11; i++)
+      {
+        ostringstream tenor_stream;
+
+        tenor_stream << i << "Y";
+        Tenor tenor(tenor_stream.str(), japan_holidays, MODIFIED_FOLLOWING);
+        Date end_date = start_date + tenor;
+        FlowTable flow_table_leg1(start_date, end_date, SEMI_ANNUAL, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i / 2 / 100.0);
+        FlowTable flow_table_leg2(start_date, end_date, SEMI_ANNUAL, japan_holidays, ACT_365, MODIFIED_FOLLOWING, 0, i / 2 * 0.0001);
+
+        Swap_Ptr swap_ptr(new Swap(jpy_ccy, "", flow_table_leg1, jpy_ccy, "LIBOR", flow_table_leg2));
+        jpy_sa_forecasting_instruments.push_back(swap_ptr);
+      }
+
+      vector<Instrument_Ptr> jpy_qu_forecasting_instruments;
       for (int i = 0; i < 11; i++)
       {
         ostringstream tenor_stream;
         tenor_stream << i << "Y";
         Tenor tenor(tenor_stream.str(), japan_holidays, MODIFIED_FOLLOWING);
         Date end_date = start_date + tenor;
-        FlowTable flow_table_leg1(start_date, end_date, SEMI_ANNUAL, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i/100);
-        FlowTable flow_table_leg2(start_date, end_date, SEMI_ANNUAL, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i/100-0.0001*i);
 
-        Swap swap(jpy_ccy, "", flow_table_leg1, jpy_ccy, "LIBOR", flow_table_leg2);
-        jpy_sa_forecasting_instruments.push_back(swap);
-      }
+        FlowTable flow_table_leg1(start_date, end_date, QUARTERLY, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i / 4 / 100.0);
+        FlowTable flow_table_leg2(start_date, end_date, QUARTERLY, japan_holidays, ACT_365, MODIFIED_FOLLOWING, 0, i / 4 * 0.0001);
 
-      vector<Instrument> jpy_qu_forecasting_instruments;
-      for (int i = 0; i < 11; i++)
-      {
-        ostringstream tenor_stream;
-        tenor_stream << i << "Y";
-        Tenor tenor(tenor_stream.str(), japan_holidays, MODIFIED_FOLLOWING);
-        Date end_date = start_date + tenor;
-
-        FlowTable flow_table_leg1(start_date, end_date, QUARTERLY, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i*3/4/100);
-        FlowTable flow_table_leg2(start_date, end_date, QUARTERLY, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i*3/4/100-0.0001*i);
-
-        Swap swap(jpy_ccy, "", flow_table_leg1, jpy_ccy, "LIBOR", flow_table_leg2);
-        jpy_sa_forecasting_instruments.push_back(swap);
+        Swap_Ptr swap_ptr(new Swap(jpy_ccy, "", flow_table_leg1, jpy_ccy, "LIBOR", flow_table_leg2));
+        jpy_sa_forecasting_instruments.push_back(swap_ptr);
       }
 
       // jpy multi curve system
@@ -170,20 +218,20 @@ int main()
       {
         Holidays us_holidays(NEW_YORK);
 
-        vector<Instrument> usd_discounting_instruments;
+        vector<Instrument_Ptr> usd_discounting_instruments;
         for (int i = 1; i < 11; i++)
         {
           ostringstream tenor_stream;
           tenor_stream << i << "Y";
           Tenor tenor(tenor_stream.str(), us_holidays, MODIFIED_FOLLOWING);
           Date end_date = start_date + tenor;
-          BulletFlow bullet_flow(start_date, end_date, us_holidays, ACT_365, MODIFIED_FOLLOWING);
-          Deposit deposit(bullet_flow, "USD");
+          BulletFlow bullet_flow(start_date, end_date, us_holidays, ACT_365, MODIFIED_FOLLOWING, i * 2 / 100.0);
+          Deposit_Ptr deposit_ptr(new Deposit(bullet_flow, "USD"));
 
-          usd_discounting_instruments.push_back(deposit);
+          usd_discounting_instruments.push_back(deposit_ptr);
         }
 
-        vector<Instrument> usd_qu_forecasting_instruments;
+        vector<Instrument_Ptr> usd_qu_forecasting_instruments;
         for (int i = 0; i < 11; i++)
         {
           ostringstream tenor_stream;
@@ -191,11 +239,11 @@ int main()
           Tenor tenor(tenor_stream.str(), japan_holidays, MODIFIED_FOLLOWING);
           Date end_date = start_date + tenor;
 
-          FlowTable flow_table_leg1(start_date, end_date, QUARTERLY, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i * 3 / 4 / 100);
-          FlowTable flow_table_leg2(start_date, end_date, QUARTERLY, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i * 3 / 4 / 100 - 0.0001*i);
+          FlowTable flow_table_leg1(start_date, end_date, QUARTERLY, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i * 4 / 100);
+          FlowTable flow_table_leg2(start_date, end_date, QUARTERLY, japan_holidays, ACT_365, MODIFIED_FOLLOWING, 0, i * 4 * 0.0001);
 
-          Swap swap("USD", "", flow_table_leg1, "USD", "LIBOR", flow_table_leg2);
-          usd_qu_forecasting_instruments.push_back(swap);
+          Swap_Ptr swap_ptr(new Swap("USD", "", flow_table_leg1, "USD", "LIBOR", flow_table_leg2));
+          usd_qu_forecasting_instruments.push_back(swap_ptr);
         }
 
         // jpy xccy curve system 

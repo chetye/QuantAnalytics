@@ -17,5 +17,13 @@ namespace instrument
 
     // utilities
     virtual void dump(ostream& os) const;
+
+    // pricing functions
+    virtual double payoff(const pricer::Pricer& pricer) const;
+    virtual double par_rate(const pricer::Pricer& pricer) const;
+    virtual double price(const pricer::Pricer& pricer) const;
   };
+
+  // support typedefs
+  typedef boost::shared_ptr<Deposit> Deposit_Ptr;
 }

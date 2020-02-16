@@ -80,6 +80,11 @@ namespace date
     generate_flow();
   }
 
+  double BulletFlow::get_accrual() const
+  {
+    return m_accrual;
+  }
+
   DayCountConvention BulletFlow::get_daycount() const
   {
     return m_daycount;
@@ -93,6 +98,11 @@ namespace date
   DateRollConvention BulletFlow::get_dateroll() const
   {
     return m_dateroll;
+  }
+
+  double BulletFlow::get_fixing_accrual() const
+  {
+    return m_fixing_accrual;
   }
 
   Date BulletFlow::get_fixing_start_date() const
@@ -130,6 +140,11 @@ namespace date
     return m_margin;
   }
 
+  void BulletFlow::set_accrual(double accrual)
+  {
+    m_accrual = accrual;
+  }
+
   void BulletFlow::set_daycount(DayCountConvention daycount)
   {
     m_daycount = daycount;
@@ -143,6 +158,11 @@ namespace date
   void BulletFlow::set_dateroll(DateRollConvention dateroll)
   {
     m_dateroll = dateroll;
+  }
+
+  void BulletFlow::set_fixing_accrual(double accrual)
+  {
+    m_fixing_accrual = accrual;
   }
 
   void BulletFlow::set_fixing_start_date(const Date & fixing_start_date)
@@ -332,6 +352,18 @@ namespace date
     return m_end_dates[index];
   }
 
+  double FlowTable::get_accrual(size_t index) const
+  {
+    if (index < m_table_accrual.size())
+    {
+      ostringstream error_string;
+      error_string << "Index " << index << " is greater than accrual size " << m_table_accrual.size() << std::endl;
+      throw(error_string.str().c_str());
+    }
+
+    return m_table_accrual[index];
+  }
+
   Date FlowTable::get_fixing_start_date(size_t index) const
   {
     if (index < m_fixing_start_dates.size())
@@ -354,6 +386,18 @@ namespace date
     }
 
     return m_fixing_end_dates[index];
+  }
+
+  double FlowTable::get_fixing_accrual(size_t index) const
+  {
+    if (index < m_fixing_accrual.size())
+    {
+      ostringstream error_string;
+      error_string << "Index " << index << " is greater than accrual size " << m_fixing_accrual.size() << std::endl;
+      throw(error_string.str().c_str());
+    }
+
+    return m_fixing_accrual[index];
   }
 
   double FlowTable::get_rate(size_t index) const

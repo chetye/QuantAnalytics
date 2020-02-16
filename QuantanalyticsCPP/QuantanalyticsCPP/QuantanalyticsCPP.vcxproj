@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -69,13 +69,24 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)..\ThirdPartyLibraries\boost_1_72_0;$(SolutionDir)..\ThirdPartyLibraries\dlib-19.19\source;</IncludePath>
+    <LibraryPath>$(SolutionDir)..\ThirdPartyLibraries\dlib-19.19\build\dlib\Release;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)..\ThirdPartyLibraries\boost_1_72_0;$(SolutionDir)..\ThirdPartyLibraries\dlib-19.19\source;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LibraryPath>$(SolutionDir)..\ThirdPartyLibraries\dlib-19.19\build\dlib\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)..\ThirdPartyLibraries\boost_1_72_0;$(SolutionDir)..\ThirdPartyLibraries\dlib-19.19\source;</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\ThirdPartyLibraries\boost_1_72_0;$(SolutionDir)..\ThirdPartyLibraries\dlib-19.19\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -84,7 +95,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>dlib19.19.0_debug_64bit_msvc1916.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -112,9 +127,11 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>dlib19.19.0_release_64bit_msvc1916.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\ThirdPartyLibraries\dlib-19.19\source\dlib\all\source.cpp" />
     <ClCompile Include="Curve.cpp" />
     <ClCompile Include="Curve_Helper.cpp" />
     <ClCompile Include="Date.cpp" />
@@ -122,10 +139,13 @@
     <ClCompile Include="Flow.cpp" />
     <ClCompile Include="Instrument.cpp" />
     <ClCompile Include="Instrument_Helpers.cpp" />
+    <ClCompile Include="IR_Model.cpp" />
+    <ClCompile Include="IR_Pricer.cpp" />
     <ClCompile Include="Marketdata.cpp" />
     <ClCompile Include="Marketdata_Helper.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Model_Helpers.cpp" />
+    <ClCompile Include="Pricer.cpp" />
     <ClCompile Include="Quantanalytics.cpp" />
     <ClCompile Include="Swap.cpp" />
   </ItemGroup>
@@ -138,10 +158,13 @@
     <ClInclude Include="Flow.h" />
     <ClInclude Include="Instrument.h" />
     <ClInclude Include="Instrument_Helpers.h" />
+    <ClInclude Include="IR_Model.h" />
+    <ClInclude Include="IR_Pricer.h" />
     <ClInclude Include="Marketdata.h" />
     <ClInclude Include="Marketdata_Helper.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Model_Helpers.h" />
+    <ClInclude Include="Pricer.h" />
     <ClInclude Include="Swap.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

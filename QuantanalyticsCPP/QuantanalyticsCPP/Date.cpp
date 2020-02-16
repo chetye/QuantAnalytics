@@ -721,7 +721,7 @@ namespace date
 
   bool Date::operator<=(const Date & d) const
   {
-    if (*this < d && *this == d)
+    if (*this < d || *this == d)
     {
       return true;
     }
@@ -730,7 +730,7 @@ namespace date
 
   bool Date::operator>=(const Date & d) const
   {
-    if (*this > d && *this == d)
+    if (*this > d || *this == d)
     {
       return true;
     }

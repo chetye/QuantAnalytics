@@ -75,10 +75,12 @@ namespace date
       double rate = 0.0, double margin = 0.0);
 
     // getter methods 
+    virtual double get_accrual() const;
     virtual DayCountConvention get_daycount() const;
     virtual Holidays get_holidays() const;
     virtual DateRollConvention get_dateroll() const;
 
+    virtual double get_fixing_accrual() const;
     virtual Date get_fixing_start_date() const;
     virtual Date get_fixing_end_date() const;
     virtual DayCountConvention get_fixing_daycount() const;
@@ -89,10 +91,12 @@ namespace date
     virtual double get_margin() const;
 
     // setter methods
+    virtual void set_accrual(double accrual);
     virtual void set_daycount(DayCountConvention daycount);
     virtual void set_holidays(const Holidays& holidays);
     virtual void set_dateroll(DateRollConvention dateroll);
 
+    virtual void set_fixing_accrual(double accrual);
     virtual void set_fixing_start_date(const Date& fixing_start_date);
     virtual void set_fixing_end_date(const Date& fixing_end_date);
     virtual void set_fixing_daycount(DayCountConvention fixing_daycount);
@@ -162,8 +166,10 @@ namespace date
 
     Date get_start_date(size_t index) const;
     Date get_end_date(size_t index) const;
+    double get_accrual(size_t index) const;
     Date get_fixing_start_date(size_t index) const;
     Date get_fixing_end_date(size_t index) const;
+    double get_fixing_accrual(size_t index) const;
     double get_rate(size_t index) const;
     double get_margin(size_t index) const;
 
