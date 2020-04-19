@@ -30,7 +30,7 @@ namespace instrument
     double par_rate = 0;
 
     boost::shared_ptr<marketdata::Marketdata> p_marketdata = pricer.get_model()->get_marketdata(marketdata::CURVE);
-    boost::shared_ptr<marketdata::Curve> p_curve = boost::static_pointer_cast<marketdata::Curve>(p_marketdata);
+    boost::shared_ptr<marketdata::Interest_Rate_Curve_System> p_curve = boost::static_pointer_cast<marketdata::Interest_Rate_Curve_System>(p_marketdata);
 
     const double discount_factor = p_curve->get_discount_factor(m_bullet_flow.get_end_date());
     par_rate = std::pow(discount_factor, -1 / m_bullet_flow.get_accrual()) - 1; // assuming annual rate

@@ -60,7 +60,6 @@
     <ClCompile Include="Curve.cpp">
       <Filter>Marketadata\Curve</Filter>
     </ClCompile>
-    <ClCompile Include="Curve_Helper.cpp" />
     <ClCompile Include="Pricer.cpp">
       <Filter>Pricer</Filter>
     </ClCompile>
@@ -69,6 +68,9 @@
       <Filter>Model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\ThirdPartyLibraries\dlib-19.19\source\dlib\all\source.cpp" />
+    <ClCompile Include="Curve_Helper.cpp">
+      <Filter>Marketadata\Curve</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Marketdata.h">
@@ -105,13 +107,15 @@
     <ClInclude Include="Curve.h">
       <Filter>Marketadata\Curve</Filter>
     </ClInclude>
-    <ClInclude Include="Curve_Helper.h" />
     <ClInclude Include="Pricer.h">
       <Filter>Pricer</Filter>
     </ClInclude>
     <ClInclude Include="IR_Pricer.h" />
     <ClInclude Include="IR_Model.h">
       <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Curve_Helper.h">
+      <Filter>Marketadata\Curve</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

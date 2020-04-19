@@ -34,8 +34,7 @@ namespace marketdata
       FORECASTING_MONTLY,
       FORECASTING_QUARTERLY,
       FORECASTING_SEMIANNUALY,
-      FORECASTING_YEARLY,
-      CROSS_CURRENCY
+      FORECASTING_YEARLY
     };
 
     ostream& operator>> (ostream& os, const CurveType& curve_type);

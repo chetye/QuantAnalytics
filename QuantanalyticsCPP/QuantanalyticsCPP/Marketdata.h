@@ -11,13 +11,13 @@ namespace marketdata
 {
 	class Marketdata
 	{
-  private:
+  protected:
     MarketdataType m_type;
     date::Date m_market_date;
 
 	public:
     // constructor
-    Marketdata(date::Date market_date);
+    Marketdata(date::Date market_date, MarketdataType type = NONE_MARKETDATA);
 
     // getter methods
     date::Date get_market_date() const;

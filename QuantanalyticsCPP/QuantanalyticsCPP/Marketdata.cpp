@@ -2,8 +2,8 @@
 
 namespace marketdata
 {
-  Marketdata::Marketdata(date::Date market_date)
-    : m_type(NONE_MARKETDATA), m_market_date(market_date)
+  Marketdata::Marketdata(date::Date market_date, MarketdataType type)
+    : m_type(type), m_market_date(market_date)
   {
   }
 

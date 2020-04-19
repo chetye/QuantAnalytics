@@ -77,11 +77,6 @@ ostream& marketdata::curve::operator>>(ostream & os, const CurveType & curve_typ
     os << "FORECASTING_YEARLY";
     break;
   }
-  case CROSS_CURRENCY:
-  {
-    os << "CROSS_CURRENCY";
-    break;
-  }
   }
   return os;
 }

@@ -331,7 +331,7 @@ namespace date
 
   Date FlowTable::get_start_date(size_t index) const
   {
-    if (index < m_start_dates.size())
+    if (index > m_start_dates.size())
     {
       ostringstream error_string;
       error_string << "Index " << index << " is greater than start dates size " << m_start_dates.size() << std::endl;
@@ -342,7 +342,7 @@ namespace date
 
   Date FlowTable::get_end_date(size_t index) const
   {
-    if (index < m_end_dates.size())
+    if (index > m_end_dates.size())
     {
       ostringstream error_string;
       error_string << "Index " << index << " is greater than end dates size " << m_end_dates.size() << std::endl;
@@ -354,7 +354,7 @@ namespace date
 
   double FlowTable::get_accrual(size_t index) const
   {
-    if (index < m_table_accrual.size())
+    if (index > m_table_accrual.size())
     {
       ostringstream error_string;
       error_string << "Index " << index << " is greater than accrual size " << m_table_accrual.size() << std::endl;
@@ -366,7 +366,7 @@ namespace date
 
   Date FlowTable::get_fixing_start_date(size_t index) const
   {
-    if (index < m_fixing_start_dates.size())
+    if (index > m_fixing_start_dates.size())
     {
       ostringstream error_string;
       error_string << "Index " << index << " is greater than fixing start dates size " << m_fixing_start_dates.size() << std::endl;
@@ -378,7 +378,7 @@ namespace date
 
   Date FlowTable::get_fixing_end_date(size_t index) const
   {
-    if (index < m_fixing_end_dates.size())
+    if (index > m_fixing_end_dates.size())
     {
       ostringstream error_string;
       error_string << "Index " << index << " is greater than fixing end dates size " << m_fixing_end_dates.size() << std::endl;
@@ -390,7 +390,7 @@ namespace date
 
   double FlowTable::get_fixing_accrual(size_t index) const
   {
-    if (index < m_fixing_accrual.size())
+    if (index > m_fixing_accrual.size())
     {
       ostringstream error_string;
       error_string << "Index " << index << " is greater than accrual size " << m_fixing_accrual.size() << std::endl;
@@ -402,7 +402,7 @@ namespace date
 
   double FlowTable::get_rate(size_t index) const
   {
-    if (index < m_rates.size())
+    if (index > m_rates.size())
     {
       ostringstream error_string;
       error_string << "Index " << index << " is greater than rates size " << m_rates.size() << std::endl;
@@ -414,7 +414,7 @@ namespace date
 
   double FlowTable::get_margin(size_t index) const
   {
-    if (index < m_margins.size())
+    if (index > m_margins.size())
     {
       ostringstream error_string;
       error_string << "Index " << index << " is greater than margins size " << m_margins.size() << std::endl;

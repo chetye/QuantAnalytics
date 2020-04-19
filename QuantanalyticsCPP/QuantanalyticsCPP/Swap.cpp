@@ -29,7 +29,7 @@ namespace instrument
   double Swap::par_rate(const pricer::Pricer& pricer) const
   {
     boost::shared_ptr<marketdata::Marketdata> p_marketdata = pricer.get_model()->get_marketdata(marketdata::CURVE);
-    boost::shared_ptr<marketdata::Curve> p_curve = boost::static_pointer_cast<marketdata::Curve>(p_marketdata);
+    boost::shared_ptr<marketdata::Interest_Rate_Curve_System> p_curve = boost::static_pointer_cast<marketdata::Interest_Rate_Curve_System>(p_marketdata);
 
     double first_leg_price = 0;
     if (m_firstleg_index == "")
@@ -55,7 +55,7 @@ namespace instrument
         date::Date start_date = m_firstleg_flow.get_start_date(i);
         date::Date end_date = m_firstleg_flow.get_end_date(i);
         date::FlowFrequency frequency = m_firstleg_flow.get_frequency();
-        double forward = p_curve->get_forward(m_firstleg_index, frequency, start_date, end_date);
+        double forward = p_curve->get_forward_rate(m_firstleg_index, frequency, start_date, end_date);
         double margin = m_firstleg_flow.get_margin(i);
 
         first_leg_price += (forward + margin) * accrual * discount_factor;
@@ -86,7 +86,7 @@ namespace instrument
         date::Date start_date = m_secondleg_flow.get_start_date(i);
         date::Date end_date = m_secondleg_flow.get_end_date(i);
         date::FlowFrequency frequency = m_secondleg_flow.get_frequency();
-        double forward = p_curve->get_forward(m_secondleg_index, frequency, start_date, end_date);
+        double forward = p_curve->get_forward_rate(m_secondleg_index, frequency, start_date, end_date);
         double margin = m_secondleg_flow.get_margin(i);
 
         second_leg_price += (forward + margin) * accrual * discount_factor;
