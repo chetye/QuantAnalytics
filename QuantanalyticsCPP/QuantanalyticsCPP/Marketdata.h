@@ -27,7 +27,7 @@ namespace marketdata
 
     // utilities
     virtual MarketdataType get_type() const;
-    void dump(ostream& os) const;
+    virtual void dump(ostream& os) const;
 	};
 
   ostream& operator<<(ostream& os, const Marketdata& marketdata);

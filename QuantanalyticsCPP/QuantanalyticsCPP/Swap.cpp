@@ -28,6 +28,141 @@ namespace instrument
 
   double Swap::par_rate(const pricer::Pricer& pricer) const
   {
+    double par_rate = 0.0;
+    
+    double margin = 0.0;
+
+    boost::shared_ptr<marketdata::Marketdata> p_marketdata = pricer.get_model()->get_marketdata(marketdata::CURVE);
+    boost::shared_ptr<marketdata::Interest_Rate_Curve_System> p_curve = boost::static_pointer_cast<marketdata::Interest_Rate_Curve_System>(p_marketdata);
+
+    if (m_firstleg_index == "" && m_secondleg_index == "") // Fix vs Fix
+    {
+      double first_leg_annuity = 0;
+      // Fixed Flow
+      for (int i = 0; i < m_firstleg_flow.get_end_dates().size(); i++)
+      {
+        double discount_factor = p_curve->get_discount_factor(m_firstleg_flow.get_end_date(i));
+        double accrual = m_firstleg_flow.get_fixing_accrual(i);
+        margin = m_firstleg_flow.get_margin(i);
+
+        first_leg_annuity += accrual * discount_factor;
+      }
+
+      double second_leg_price = 0;
+      // Fixed Flow
+      for (int i = 0; i < m_secondleg_flow.get_end_dates().size(); i++)
+      {
+        double discount_factor = p_curve->get_discount_factor(m_secondleg_flow.get_end_date(i));
+        double accrual = m_secondleg_flow.get_fixing_accrual(i);
+        double rate = m_secondleg_flow.get_rate(i);
+        double margin = m_secondleg_flow.get_margin(i);
+
+        second_leg_price += (rate + margin) * accrual * discount_factor;
+      }
+
+      par_rate = second_leg_price / first_leg_annuity - margin; // margin from first leg
+    }
+    else if (m_firstleg_index == "" && m_secondleg_index != "") // Fix vs Floating
+    {
+      double first_leg_annuity = 0;
+      // Fixed Flow
+      for (int i = 0; i < m_firstleg_flow.get_end_dates().size(); i++)
+      {
+        double discount_factor = p_curve->get_discount_factor(m_firstleg_flow.get_end_date(i));
+        double accrual = m_firstleg_flow.get_fixing_accrual(i);
+        margin = m_firstleg_flow.get_margin(i);
+
+        first_leg_annuity += accrual * discount_factor;
+      }
+
+      double second_leg_price = 0;
+      // Floating Flow
+      for (int i = 0; i < m_firstleg_flow.get_end_dates().size(); i++)
+      {
+        double discount_factor = p_curve->get_discount_factor(m_firstleg_flow.get_end_date(i));
+        double accrual = m_firstleg_flow.get_fixing_accrual(i);
+        date::Date start_date = m_firstleg_flow.get_start_date(i);
+        date::Date end_date = m_firstleg_flow.get_end_date(i);
+        date::FlowFrequency frequency = m_firstleg_flow.get_frequency();
+        double forward = p_curve->get_forward_rate(m_firstleg_index, frequency, start_date, end_date);
+        double margin = m_firstleg_flow.get_margin(i);
+
+        second_leg_price += (forward + margin) * accrual * discount_factor;
+      }
+
+      par_rate = second_leg_price / first_leg_annuity - margin;
+    }
+    else if (m_firstleg_index != "" && m_secondleg_index == "") // Floating vs Fix
+    {
+      double first_leg_price = 0;
+      for (int i = 0; i < m_firstleg_flow.get_end_dates().size(); i++)
+      {
+        double discount_factor = p_curve->get_discount_factor(m_firstleg_flow.get_end_date(i));
+        double accrual = m_firstleg_flow.get_fixing_accrual(i);
+        date::Date start_date = m_firstleg_flow.get_start_date(i);
+        date::Date end_date = m_firstleg_flow.get_end_date(i);
+        date::FlowFrequency frequency = m_firstleg_flow.get_frequency();
+        double forward = p_curve->get_forward_rate(m_firstleg_index, frequency, start_date, end_date);
+        double margin = m_firstleg_flow.get_margin(i);
+
+        first_leg_price += (forward + margin) * accrual * discount_factor;
+      }
+
+      double second_leg_annuity = 0;
+      // Fixed Flow
+      for (int i = 0; i < m_secondleg_flow.get_end_dates().size(); i++)
+      {
+        double discount_factor = p_curve->get_discount_factor(m_secondleg_flow.get_end_date(i));
+        double accrual = m_secondleg_flow.get_fixing_accrual(i);
+        margin = m_secondleg_flow.get_margin(i);
+
+        second_leg_annuity += accrual * discount_factor;
+      }
+
+      par_rate = first_leg_price / second_leg_annuity - margin;
+    }
+    else // Floating vs Floating
+    {
+      double first_leg_price = 0;
+      double first_leg_annuity = 0;
+      for (int i = 0; i < m_firstleg_flow.get_end_dates().size(); i++)
+      {
+        double discount_factor = p_curve->get_discount_factor(m_firstleg_flow.get_end_date(i));
+        double accrual = m_firstleg_flow.get_fixing_accrual(i);
+        date::Date start_date = m_firstleg_flow.get_start_date(i);
+        date::Date end_date = m_firstleg_flow.get_end_date(i);
+        date::FlowFrequency frequency = m_firstleg_flow.get_frequency();
+        double forward = p_curve->get_forward_rate(m_firstleg_index, frequency, start_date, end_date);
+
+        first_leg_price += forward * accrual * discount_factor;
+        first_leg_annuity += accrual * discount_factor;
+      }
+
+      double second_leg_price = 0;
+      // Floating Flow
+      for (int i = 0; i < m_firstleg_flow.get_end_dates().size(); i++)
+      {
+        double discount_factor = p_curve->get_discount_factor(m_firstleg_flow.get_end_date(i));
+        double accrual = m_firstleg_flow.get_fixing_accrual(i);
+        date::Date start_date = m_firstleg_flow.get_start_date(i);
+        date::Date end_date = m_firstleg_flow.get_end_date(i);
+        date::FlowFrequency frequency = m_firstleg_flow.get_frequency();
+        double forward = p_curve->get_forward_rate(m_firstleg_index, frequency, start_date, end_date);
+        double margin = m_firstleg_flow.get_margin(i);
+
+        second_leg_price += (forward + margin) * accrual * discount_factor;
+      }
+
+      par_rate = (second_leg_price - first_leg_price) / first_leg_annuity;
+    }
+
+    return par_rate;
+  }
+
+  double Swap::price(const pricer::Pricer& pricer) const
+  {
+    double price = 0.0;
+
     boost::shared_ptr<marketdata::Marketdata> p_marketdata = pricer.get_model()->get_marketdata(marketdata::CURVE);
     boost::shared_ptr<marketdata::Interest_Rate_Curve_System> p_curve = boost::static_pointer_cast<marketdata::Interest_Rate_Curve_System>(p_marketdata);
 
@@ -41,7 +176,7 @@ namespace instrument
         double accrual = m_firstleg_flow.get_fixing_accrual(i);
         double rate = m_firstleg_flow.get_rate(i);
         double margin = m_firstleg_flow.get_margin(i);
-         
+
         first_leg_price += (rate + margin) * accrual * discount_factor;
       }
     }
@@ -93,15 +228,8 @@ namespace instrument
       }
     }
 
-    double par_rate = first_leg_price - second_leg_price;
+    price = first_leg_price - second_leg_price;
 
-    return par_rate;
-  }
-
-  double Swap::price(const pricer::Pricer& pricer) const
-  {
-    double price = 0;
-    price = par_rate(pricer);
     return price;
   }
 

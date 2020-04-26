@@ -279,7 +279,7 @@ namespace marketdata
           long x_value_i2_i1 = this->m_x_values[i] - this->m_x_values[i - 1];
           long x_value_i2_x = this->m_x_values[i] - x_value;
 
-          y_value = this->m_y_values[i] * (x_value_x_i1 / x_value_i2_i1) + this->m_y_values[i - 1] * (x_value_i2_x / x_value_i2_i1);
+          y_value = this->m_y_values[i] * ((double)x_value_x_i1 / x_value_i2_i1) + this->m_y_values[i - 1] * ((double)x_value_i2_x / x_value_i2_i1);
 
           return y_value;
         }

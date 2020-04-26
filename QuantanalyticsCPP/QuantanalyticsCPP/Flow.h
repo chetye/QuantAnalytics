@@ -33,7 +33,7 @@ namespace date
     virtual void set_end_date(const Date& end_date);
 
     // utilities
-    virtual void generate_flow() = 0;
+    virtual void generate_flow(double rate = 0.0, double margin = 0.0) = 0;
     virtual FlowType get_type() const;
     virtual void dump(ostream& os) const = 0;
   };
@@ -107,7 +107,7 @@ namespace date
     virtual void set_margin(double margin);
 
     // utilities
-    virtual void generate_flow();
+    virtual void generate_flow(double rate = 0.0, double margin = 0.0);
     virtual void dump(ostream& os) const;
   };
 
@@ -196,7 +196,7 @@ namespace date
     virtual void set_margin(size_t index, const double margin);
 
     // utilities
-    virtual void generate_flow();
+    virtual void generate_flow(double rate = 0.0, double margin = 0.0);
     virtual void dump(ostream& os) const;
   };
 }

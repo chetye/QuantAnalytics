@@ -52,7 +52,7 @@ namespace date
     m_rate = rate;
     m_margin = margin;
 
-    generate_flow();
+    generate_flow(rate, margin);
   }
 
   BulletFlow::BulletFlow(Date start_date, Date end_date,
@@ -74,10 +74,7 @@ namespace date
     m_fixing_daycount = fixing_daycount;
     m_fixing_dateroll = fixing_dateroll;
 
-    m_rate = rate;
-    m_margin = margin;
-
-    generate_flow();
+    generate_flow(rate, margin);
   }
 
   double BulletFlow::get_accrual() const
@@ -200,10 +197,13 @@ namespace date
     m_margin = margin;
   }
 
-  void BulletFlow::generate_flow()
+  void BulletFlow::generate_flow(double rate, double margin)
   {
     m_accrual = m_start_date.accrual_factor(m_end_date, m_daycount);
     m_fixing_accrual = m_fixing_start_date.accrual_factor(m_fixing_end_date, m_fixing_daycount);
+
+    m_rate = rate;
+    m_margin = margin;
   }
 
   void BulletFlow::dump(ostream & os) const
@@ -244,7 +244,7 @@ namespace date
     m_fixing_daycount = table_daycount;
     m_fixing_dateroll = table_dateroll;
 
-    generate_flow();
+    generate_flow(rate, margin);
   }
 
   FlowTable::FlowTable(Date start_date, Date end_date, FlowFrequency frequency, 
@@ -261,7 +261,7 @@ namespace date
     m_fixing_daycount = fixing_daycount;
     m_fixing_dateroll = fixing_dateroll;
 
-    generate_flow();
+    generate_flow(rate, margin);
   }
 
   vector<Date> FlowTable::get_start_dates() const
@@ -561,7 +561,7 @@ namespace date
     m_margins[index] = margin;
   }
 
-  void FlowTable::generate_flow()
+  void FlowTable::generate_flow(double rate, double margin)
   {
     size_t days = m_end_date - m_start_date;
     size_t number_of_flows = days / m_frequency;
@@ -593,8 +593,8 @@ namespace date
       m_fixing_end_dates[i] = m_fixing_start_dates[i] + fixing_tenor;
       m_fixing_accrual[i] = m_fixing_start_dates[i].accrual_factor(m_fixing_end_dates[i], m_table_daycount);
       
-      m_rates[i] = 0;
-      m_margins[i] = 0;
+      m_rates[i] = rate;
+      m_margins[i] = margin;
     }
 
     // Remember the last flow is any
@@ -609,8 +609,8 @@ namespace date
       m_fixing_end_dates.push_back(m_end_date);
       m_fixing_accrual.push_back(m_fixing_start_dates[number_of_flows].accrual_factor(m_fixing_end_dates[number_of_flows], m_table_daycount));
 
-      m_rates.push_back(0.0);
-      m_margins.push_back(0.0);
+      m_rates.push_back(rate);
+      m_margins.push_back(margin);
     }
     else if(number_of_flows == 0)
     {
@@ -623,8 +623,8 @@ namespace date
       m_fixing_end_dates.push_back(m_end_date);
       m_fixing_accrual.push_back(m_start_date.accrual_factor(m_end_date, m_table_daycount));
 
-      m_rates.push_back(0.0);
-      m_margins.push_back(0.0);
+      m_rates.push_back(rate);
+      m_margins.push_back(margin);
     }
   }
 

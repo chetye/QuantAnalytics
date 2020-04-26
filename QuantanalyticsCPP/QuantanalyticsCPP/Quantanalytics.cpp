@@ -81,7 +81,7 @@ int main()
     using namespace marketdata;
     using namespace marketdata::curve;
 
-    if (true)
+    if (false)
     {
       Holidays japan_holidays(TOKYO, NEW_YORK);
       
@@ -100,27 +100,12 @@ int main()
         instruments.push_back(deposit_ptr);
       }
 
-      //for (int i = 4; i < 11; i++)
-      //{
-      //  ostringstream tenor_stream;
-
-      //  tenor_stream << i << "Y";
-      //  Tenor tenor(tenor_stream.str(), japan_holidays, MODIFIED_FOLLOWING);
-      //  Date end_date = start_date + tenor;
-      //  FlowTable flow_table_leg1(start_date, end_date, SEMI_ANNUAL, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i / 2 / 100.0);
-      //  FlowTable flow_table_leg2(start_date, end_date, SEMI_ANNUAL, japan_holidays, ACT_365, MODIFIED_FOLLOWING, 0, i / 2 * 0.0001);
-
-      //  Swap_Ptr swap_ptr(new Swap(jpy_ccy, "", flow_table_leg1, jpy_ccy, "LIBOR", flow_table_leg2));
-
-      //  instruments.push_back(swap_ptr);
-      //}
-
       // jpy single curve system
       Interest_Rate_Curve_Ptr single_jpy_curve(new Interest_Rate_Curve(instruments, LINEAR_INTERPOLATION, FLAT_EXTRAPOLATION));
 
       Interest_Rate_Curve_System single_jpy_curve_system(start_date, "JPY");
 
-      single_jpy_curve_system.add_curve("DISCOUNTING", single_jpy_curve);
+      single_jpy_curve_system.add_curve("DISCOUNTING", "", NONE_FREQUENCY, single_jpy_curve);
 
       single_jpy_curve_system.bootstrap();
 
@@ -128,7 +113,7 @@ int main()
       single_jpy_curve_system.dump(cout);
     }
 
-    if (false)
+    if (true)
     {
       Holidays japan_holidays(TOKYO, NEW_YORK);
 
@@ -147,15 +132,15 @@ int main()
       }
 
       vector<Instrument_Ptr> jpy_sa_forecasting_instruments;
-      for (int i = 0; i < 11; i++)
+      for (int i = 1; i < 11; i++)
       {
         ostringstream tenor_stream;
 
         tenor_stream << i << "Y";
         Tenor tenor(tenor_stream.str(), japan_holidays, MODIFIED_FOLLOWING);
         Date end_date = start_date + tenor;
-        FlowTable flow_table_leg1(start_date, end_date, SEMI_ANNUAL, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i / 2 / 100.0);
-        FlowTable flow_table_leg2(start_date, end_date, SEMI_ANNUAL, japan_holidays, ACT_365, MODIFIED_FOLLOWING, 0, i / 2 * 0.0001);
+        FlowTable flow_table_leg1(start_date, end_date, SEMI_ANNUAL, japan_holidays, ACT_365, MODIFIED_FOLLOWING, (double)i / 2 / 100.0);
+        FlowTable flow_table_leg2(start_date, end_date, SEMI_ANNUAL, japan_holidays, ACT_365, MODIFIED_FOLLOWING, 0, (double)i / 2 * 0.0001);
 
         Swap_Ptr swap_ptr(new Swap(jpy_ccy, "", flow_table_leg1, jpy_ccy, "LIBOR", flow_table_leg2));
         jpy_sa_forecasting_instruments.push_back(swap_ptr);
@@ -166,13 +151,13 @@ int main()
       Interest_Rate_Curve_Ptr forecasting_sa_curve(new Interest_Rate_Curve(jpy_sa_forecasting_instruments, LINEAR_INTERPOLATION, FLAT_EXTRAPOLATION));
 
       Interest_Rate_Curve_System jpy_curve_system(start_date, "JPY");
-      jpy_curve_system.add_curve("DISCOUNTING", discounting_curve);
-      jpy_curve_system.add_curve("FORECASTING_LIBOR_SA", forecasting_sa_curve);
+      jpy_curve_system.add_curve("DISCOUNTING", "", NONE_FREQUENCY, discounting_curve);
+      jpy_curve_system.add_curve("FORECASTING", "LIBOR", SEMI_ANNUAL, forecasting_sa_curve);
 
       // boostrap the curve
       jpy_curve_system.bootstrap();
 
-      cout << "JPY Curve details" << endl;
+      cout << "JPY Discounting and Forecasting SA Curve details" << endl;
       cout << jpy_curve_system << endl;
     }
 
@@ -230,14 +215,14 @@ int main()
       Interest_Rate_Curve_Ptr forecasting_qu_curve(new Interest_Rate_Curve(jpy_qu_forecasting_instruments, LINEAR_INTERPOLATION, FLAT_EXTRAPOLATION));
 
       Interest_Rate_Curve_System jpy_curve_system(start_date, "JPY");
-      jpy_curve_system.add_curve("DISCOUNTING", discounting_curve);
-      jpy_curve_system.add_curve("FORECASTING_LIBOR_SA", forecasting_sa_curve);
-      jpy_curve_system.add_curve("FORECASTING_LIBOR_QU", forecasting_qu_curve);
+      jpy_curve_system.add_curve("DISCOUNTING", "", NONE_FREQUENCY, discounting_curve);
+      jpy_curve_system.add_curve("FORECASTING", "LIBOR", SEMI_ANNUAL, forecasting_sa_curve);
+      jpy_curve_system.add_curve("FORECASTING", "LIBOR", QUARTERLY, forecasting_qu_curve);
 
       // boostrap the curve
       jpy_curve_system.bootstrap();
 
-      cout << "JPY Curve details" << endl;
+      cout << "JPY Discounting, Forecasting SA and Forecasting QU details" << endl;
       cout << jpy_curve_system << endl;
 
       if (false)
@@ -281,8 +266,8 @@ int main()
         Interest_Rate_Curve_Ptr usd_discounting_curve(new Interest_Rate_Curve(usd_discounting_instruments, LINEAR_INTERPOLATION, FLAT_EXTRAPOLATION));
         Interest_Rate_Curve_Ptr usd_forecasting_qu_curve(new Interest_Rate_Curve(usd_qu_forecasting_instruments, LINEAR_INTERPOLATION, FLAT_EXTRAPOLATION));
 
-        usd_curve_system.add_curve("DISCOUNTING", usd_discounting_curve);
-        usd_curve_system.add_curve("FORECASTING_LIBOR_SA", usd_forecasting_qu_curve);
+        usd_curve_system.add_curve("DISCOUNTING", "", NONE_FREQUENCY, usd_discounting_curve);
+        usd_curve_system.add_curve("FORECASTING", "LIBOR", QUARTERLY, usd_forecasting_qu_curve);
 
         jpy_xccy_curve_system.add_external_curve_system(usd_curve_system);
 
