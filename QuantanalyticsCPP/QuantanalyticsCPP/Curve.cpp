@@ -160,6 +160,7 @@ void Interest_Rate_Curve_System::set_discount_factors(vector<double> discount_fa
 Interest_Rate_Curve_System::Interest_Rate_Curve_System(date::Date market_date, std::string currency)
   : Curve_System(market_date, currency)
 {
+  m_external_curve_system = NULL;
 }
 
 void Interest_Rate_Curve_System::add_curve(std::string type, std::string index, date::FlowFrequency frequency, Interest_Rate_Curve_Ptr curve)
@@ -275,7 +276,7 @@ double Interest_Rate_Curve_System::get_forward_rate(string index, date::FlowFreq
 
 void Interest_Rate_Curve_System::bootstrap()
 {
-  if (m_external_curve_system)
+  if (m_external_curve_system != NULL)
   {
     m_external_curve_system->bootstrap();
   }
@@ -295,7 +296,7 @@ void Interest_Rate_Curve_System::bootstrap()
 
   dlib::find_min_box_constrained(dlib::lbfgs_search_strategy(get_instruments().size()),
     dlib::objective_delta_stop_strategy(1e-10), &bootstrap_helper::bootstrap, dlib::derivative(&bootstrap_helper::bootstrap),
-    starting_point, 0, 2.0);
+    starting_point, 0.000001, 10.0);
 
   for (int i = 0; i < discount_factors.size(); i++)
   {

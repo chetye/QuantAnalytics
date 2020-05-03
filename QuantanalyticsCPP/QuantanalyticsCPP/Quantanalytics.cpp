@@ -113,7 +113,7 @@ int main()
       single_jpy_curve_system.dump(cout);
     }
 
-    if (true)
+    if (false)
     {
       Holidays japan_holidays(TOKYO, NEW_YORK);
 
@@ -161,7 +161,7 @@ int main()
       cout << jpy_curve_system << endl;
     }
 
-    if (false)
+    if (true)
     {
       Holidays japan_holidays(TOKYO, NEW_YORK);
 
@@ -180,7 +180,7 @@ int main()
       }
 
       vector<Instrument_Ptr> jpy_sa_forecasting_instruments;
-      for (int i = 0; i < 11; i++)
+      for (int i = 1; i < 11; i++)
       {
         ostringstream tenor_stream;
 
@@ -195,7 +195,7 @@ int main()
       }
 
       vector<Instrument_Ptr> jpy_qu_forecasting_instruments;
-      for (int i = 0; i < 11; i++)
+      for (int i = 1; i < 11; i++)
       {
         ostringstream tenor_stream;
         tenor_stream << i << "Y";
