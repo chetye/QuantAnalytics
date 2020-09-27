@@ -62,8 +62,7 @@ namespace marketdata
     std::string get_currency() const { return m_currency; }
     virtual double get_discount_factor(date::Date date) const = 0;
     virtual double get_forecast_factor(date::Date start_date, date::Date end_date) const = 0;
-    virtual double get_forward_rate(string index, date::FlowFrequency frequency, date::Date start_date, date::Date end_date,
-      date::DayCountConvention dc = date::ACT_365) const = 0;
+    virtual double get_forward_rate(string index, date::FlowFrequency frequency, date::Date start_date, date::Date end_date, date::DayCountConvention dc = date::ACT_365) const = 0;
 
     virtual std::vector<instrument::Instrument_Ptr> get_instruments() const = 0;
     virtual std::vector<double> get_discount_factors() const = 0;
@@ -85,19 +84,19 @@ namespace marketdata
 
   public:
     Interest_Rate_Curve_System(date::Date market_date, std::string currency);
+    Interest_Rate_Curve_System(Interest_Rate_Curve_System&);
     virtual void add_curve(std::string type, std::string index, date::FlowFrequency frequency, Interest_Rate_Curve_Ptr curve);
-    virtual void add_external_curve_system(boost::shared_ptr<Interest_Rate_Curve_System> external_curve_system);
-    virtual void add_external_curve_system(Interest_Rate_Curve_System& external_curve_system);
+    virtual void add_external_curve_system(boost::shared_ptr<Interest_Rate_Curve_System> external_curve_system, Interest_Rate_Curve_Ptr xccy_curve);
 
     // utilities
     virtual double get_discount_factor(date::Date date) const;
     virtual double get_forecast_factor(date::Date start_date, date::Date end_date) const;
-    virtual double get_forward_rate(string index, date::FlowFrequency frequency, date::Date start_date, date::Date end_date,
-      date::DayCountConvention dc = date::ACT_365) const;
+    virtual double get_forward_rate(string index, date::FlowFrequency frequency, date::Date start_date, date::Date end_date, date::DayCountConvention dc = date::ACT_365) const;
 
     virtual std::vector<instrument::Instrument_Ptr> get_instruments() const;
     virtual std::vector<double> get_discount_factors() const;
     virtual void set_discount_factors(vector<double> discount_factors);
+    boost::shared_ptr<Interest_Rate_Curve_System> get_external_curve_system() const;
 
     virtual void bootstrap();
 

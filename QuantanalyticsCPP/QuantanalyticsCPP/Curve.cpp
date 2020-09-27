@@ -41,8 +41,7 @@ void Curve::dump(ostream & os) const
   }
 }
 
-Interest_Rate_Curve::Interest_Rate_Curve(vector<instrument::Instrument_Ptr> instruments,
-  curve::InterpolationType interp, curve::ExtrapolationType extrap)
+Interest_Rate_Curve::Interest_Rate_Curve(vector<instrument::Instrument_Ptr> instruments, curve::InterpolationType interp, curve::ExtrapolationType extrap)
   : m_instruments(instruments), Curve(vector<date::Date>(), vector<double>(), interp, extrap)
 {
   // First Date
@@ -157,10 +156,22 @@ void Interest_Rate_Curve_System::set_discount_factors(vector<double> discount_fa
   }
 }
 
+boost::shared_ptr<Interest_Rate_Curve_System> Interest_Rate_Curve_System::get_external_curve_system() const
+{
+  return m_external_curve_system;
+}
+
 Interest_Rate_Curve_System::Interest_Rate_Curve_System(date::Date market_date, std::string currency)
   : Curve_System(market_date, currency)
 {
   m_external_curve_system = NULL;
+}
+
+Interest_Rate_Curve_System::Interest_Rate_Curve_System(Interest_Rate_Curve_System& other)
+  : Curve_System(other.m_market_date, other.m_currency)
+{
+  m_curves = other.m_curves;
+  m_external_curve_system = other.m_external_curve_system;
 }
 
 void Interest_Rate_Curve_System::add_curve(std::string type, std::string index, date::FlowFrequency frequency, Interest_Rate_Curve_Ptr curve)
@@ -177,36 +188,34 @@ void Interest_Rate_Curve_System::add_curve(std::string type, std::string index, 
   m_curves.insert(std::pair<std::string, Interest_Rate_Curve_Ptr>(curve_type, curve));
 }
 
-void Interest_Rate_Curve_System::add_external_curve_system(boost::shared_ptr<Interest_Rate_Curve_System> external_curve_system)
+void Interest_Rate_Curve_System::add_external_curve_system(boost::shared_ptr<Interest_Rate_Curve_System> external_curve_system, Interest_Rate_Curve_Ptr xccy_curve)
 {
-  m_external_curve_system = external_curve_system;
-}
+  // add the external curve
+  add_curve("XCCY_DISCOUNTING", "", date::NONE_FREQUENCY, xccy_curve);
 
-void Interest_Rate_Curve_System::add_external_curve_system(Interest_Rate_Curve_System& external_curve_system)
-{
-  m_external_curve_system.reset(new Interest_Rate_Curve_System(external_curve_system));
+  // add the external curve system
+  m_external_curve_system = external_curve_system;
 }
 
 double Interest_Rate_Curve_System::get_discount_factor(date::Date date) const
 {
   double discount_factor = 1.0;
-  std::map<std::string, Interest_Rate_Curve_Ptr>::const_iterator iter = m_curves.find("DISCOUNTING");
-  if (iter != m_curves.end())
+  
+  std::map<std::string, Interest_Rate_Curve_Ptr>::const_iterator iter_xccy_discounting = m_curves.find("XCCY_DISCOUNTING");
+  std::map<std::string, Interest_Rate_Curve_Ptr>::const_iterator iter_discounting = m_curves.find("DISCOUNTING");
+  if (iter_xccy_discounting != m_curves.end())
   {
-    Interest_Rate_Curve_Ptr discounting_curve = iter->second;
+    Interest_Rate_Curve_Ptr xccy_discounting_curve = iter_xccy_discounting->second;
+    discount_factor = xccy_discounting_curve->get_discount_factor(date);
+  }
+  else if (iter_discounting != m_curves.end())
+  {
+    Interest_Rate_Curve_Ptr discounting_curve = iter_discounting->second;
     discount_factor = discounting_curve->get_discount_factor(date);
   }
   else
   {
     std::runtime_error("DISCOUNTING curve not found");
-  }
-
-
-  if(m_external_curve_system)
-  {
-    double external_discount_factor = m_external_curve_system->get_discount_factor(date);
-
-    discount_factor = discount_factor * external_discount_factor;
   }
 
   return discount_factor;
@@ -215,23 +224,22 @@ double Interest_Rate_Curve_System::get_discount_factor(date::Date date) const
 double Interest_Rate_Curve_System::get_forecast_factor(date::Date start_date, date::Date end_date) const
 {
   double forecast_factor = 1.0;
-  std::map<std::string, Interest_Rate_Curve_Ptr>::const_iterator iter = m_curves.find("DISCOUNTING");
-  if (iter != m_curves.end())
+
+  std::map<std::string, Interest_Rate_Curve_Ptr>::const_iterator iter_xccy_discounting = m_curves.find("XCCY_DISCOUNTING");
+  std::map<std::string, Interest_Rate_Curve_Ptr>::const_iterator iter_discounting = m_curves.find("DISCOUNTING");
+  if (iter_xccy_discounting != m_curves.end())
   {
-    Interest_Rate_Curve_Ptr discounting_curve = iter->second;
+    Interest_Rate_Curve_Ptr xccy_discounting_curve = iter_xccy_discounting->second;
+    forecast_factor = xccy_discounting_curve->get_forecast_factor(start_date, end_date);
+  }
+  else if (iter_discounting != m_curves.end())
+  {
+    Interest_Rate_Curve_Ptr discounting_curve = iter_discounting->second;
     forecast_factor = discounting_curve->get_forecast_factor(start_date, end_date);
   }
   else
   {
     std::runtime_error("DISCOUNTING curve not found");
-  }
-
-
-  if (m_external_curve_system)
-  {
-    double external_forecast_factor = m_external_curve_system->get_forecast_factor(start_date, end_date);
-
-    forecast_factor = forecast_factor * external_forecast_factor;
   }
 
   return forecast_factor;
@@ -295,8 +303,8 @@ void Interest_Rate_Curve_System::bootstrap()
   bootstrap_helper b(this);
 
   dlib::find_min_box_constrained(dlib::lbfgs_search_strategy(get_instruments().size()),
-    dlib::objective_delta_stop_strategy(1e-10), &bootstrap_helper::bootstrap, dlib::derivative(&bootstrap_helper::bootstrap),
-    starting_point, 0.000001, 10.0);
+    dlib::objective_delta_stop_strategy(1e-9), &bootstrap_helper::bootstrap, dlib::derivative(&bootstrap_helper::bootstrap),
+    starting_point, 1e-9, 10.0);
 
   for (int i = 0; i < discount_factors.size(); i++)
   {
@@ -311,6 +319,12 @@ void Interest_Rate_Curve_System::dump(ostream & os) const
 {
   Marketdata::dump(os);
   os << "\n";
+
+  if (m_external_curve_system != NULL)
+  {
+    m_external_curve_system->dump(os);
+    os << "\n";
+  }
 
   std::map<std::string, Interest_Rate_Curve_Ptr>::const_iterator iter;
   for (iter = m_curves.begin(); iter != m_curves.end(); ++iter)

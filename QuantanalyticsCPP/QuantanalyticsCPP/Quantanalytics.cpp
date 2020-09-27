@@ -12,7 +12,7 @@ using namespace date;
 
 int main()
 {
-	cout << "This is the Quantitative Analytics Library" << endl;
+	cout << "Quantitative Analytics Library" << endl;
 
   Date start_date("31-12-2018");
   cout << start_date << endl;
@@ -81,6 +81,7 @@ int main()
     using namespace marketdata;
     using namespace marketdata::curve;
 
+    // single ccy single curve system
     if (false)
     {
       Holidays japan_holidays(TOKYO, NEW_YORK);
@@ -113,6 +114,7 @@ int main()
       single_jpy_curve_system.dump(cout);
     }
 
+    // single ccy multi curve system
     if (false)
     {
       Holidays japan_holidays(TOKYO, NEW_YORK);
@@ -161,6 +163,7 @@ int main()
       cout << jpy_curve_system << endl;
     }
 
+    // multi ccy multi curve system
     if (true)
     {
       Holidays japan_holidays(TOKYO, NEW_YORK);
@@ -173,7 +176,7 @@ int main()
         tenor_stream << i << "Y";
         Tenor tenor(tenor_stream.str(), japan_holidays, MODIFIED_FOLLOWING);
         Date end_date = start_date + tenor;
-        BulletFlow bullet_flow(start_date, end_date, japan_holidays, ACT_365, MODIFIED_FOLLOWING);
+        BulletFlow bullet_flow(start_date, end_date, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i / 100.0);
         Deposit_Ptr deposit_ptr(new Deposit(bullet_flow, jpy_ccy));
 
         jpy_discounting_instruments.push_back(deposit_ptr);
@@ -202,10 +205,10 @@ int main()
         Tenor tenor(tenor_stream.str(), japan_holidays, MODIFIED_FOLLOWING);
         Date end_date = start_date + tenor;
 
-        FlowTable flow_table_leg1(start_date, end_date, QUARTERLY, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i / 4 / 100.0);
+        FlowTable flow_table_leg1(start_date, end_date, SEMI_ANNUAL, japan_holidays, ACT_365, MODIFIED_FOLLOWING);
         FlowTable flow_table_leg2(start_date, end_date, QUARTERLY, japan_holidays, ACT_365, MODIFIED_FOLLOWING, 0, i / 4 * 0.0001);
 
-        Swap_Ptr swap_ptr(new Swap(jpy_ccy, "", flow_table_leg1, jpy_ccy, "LIBOR", flow_table_leg2));
+        Swap_Ptr swap_ptr(new Swap(jpy_ccy, "LIBOR", flow_table_leg1, jpy_ccy, "LIBOR", flow_table_leg2));
         jpy_qu_forecasting_instruments.push_back(swap_ptr);
       }
 
@@ -214,69 +217,76 @@ int main()
       Interest_Rate_Curve_Ptr forecasting_sa_curve(new Interest_Rate_Curve(jpy_sa_forecasting_instruments, LINEAR_INTERPOLATION, FLAT_EXTRAPOLATION));
       Interest_Rate_Curve_Ptr forecasting_qu_curve(new Interest_Rate_Curve(jpy_qu_forecasting_instruments, LINEAR_INTERPOLATION, FLAT_EXTRAPOLATION));
 
-      Interest_Rate_Curve_System jpy_curve_system(start_date, "JPY");
-      jpy_curve_system.add_curve("DISCOUNTING", "", NONE_FREQUENCY, discounting_curve);
-      jpy_curve_system.add_curve("FORECASTING", "LIBOR", SEMI_ANNUAL, forecasting_sa_curve);
-      jpy_curve_system.add_curve("FORECASTING", "LIBOR", QUARTERLY, forecasting_qu_curve);
+      // jpy xccy curve system 
+      Interest_Rate_Curve_System_Ptr jpy_xccy_curve_system(new Interest_Rate_Curve_System(start_date, "JPY"));
+      jpy_xccy_curve_system->add_curve("DISCOUNTING", "", NONE_FREQUENCY, discounting_curve);
+      jpy_xccy_curve_system->add_curve("FORECASTING", "LIBOR", SEMI_ANNUAL, forecasting_sa_curve);
+      jpy_xccy_curve_system->add_curve("FORECASTING", "LIBOR", QUARTERLY, forecasting_qu_curve);
 
-      // boostrap the curve
-      jpy_curve_system.bootstrap();
+      Holidays us_holidays(NEW_YORK);
 
-      cout << "JPY Discounting, Forecasting SA and Forecasting QU details" << endl;
-      cout << jpy_curve_system << endl;
-
-      if (false)
+      vector<Instrument_Ptr> usd_discounting_instruments;
+      string usd_ccy = "USD";
+      for (int i = 1; i < 11; i++)
       {
-        Holidays us_holidays(NEW_YORK);
+        ostringstream tenor_stream;
+        tenor_stream << i << "Y";
+        Tenor tenor(tenor_stream.str(), us_holidays, MODIFIED_FOLLOWING);
+        Date end_date = start_date + tenor;
+        BulletFlow bullet_flow(start_date, end_date, us_holidays, ACT_365, MODIFIED_FOLLOWING, i * 2 / 100.0);
+        Deposit_Ptr deposit_ptr(new Deposit(bullet_flow, usd_ccy));
 
-        vector<Instrument_Ptr> usd_discounting_instruments;
-        for (int i = 1; i < 11; i++)
-        {
-          ostringstream tenor_stream;
-          tenor_stream << i << "Y";
-          Tenor tenor(tenor_stream.str(), us_holidays, MODIFIED_FOLLOWING);
-          Date end_date = start_date + tenor;
-          BulletFlow bullet_flow(start_date, end_date, us_holidays, ACT_365, MODIFIED_FOLLOWING, i * 2 / 100.0);
-          Deposit_Ptr deposit_ptr(new Deposit(bullet_flow, "USD"));
-
-          usd_discounting_instruments.push_back(deposit_ptr);
-        }
-
-        vector<Instrument_Ptr> usd_qu_forecasting_instruments;
-        for (int i = 0; i < 11; i++)
-        {
-          ostringstream tenor_stream;
-          tenor_stream << i << "Y";
-          Tenor tenor(tenor_stream.str(), japan_holidays, MODIFIED_FOLLOWING);
-          Date end_date = start_date + tenor;
-
-          FlowTable flow_table_leg1(start_date, end_date, QUARTERLY, japan_holidays, ACT_365, MODIFIED_FOLLOWING, i * 4 / 100);
-          FlowTable flow_table_leg2(start_date, end_date, QUARTERLY, japan_holidays, ACT_365, MODIFIED_FOLLOWING, 0, i * 4 * 0.0001);
-
-          Swap_Ptr swap_ptr(new Swap("USD", "", flow_table_leg1, "USD", "LIBOR", flow_table_leg2));
-          usd_qu_forecasting_instruments.push_back(swap_ptr);
-        }
-
-        // jpy xccy curve system 
-        Interest_Rate_Curve_System jpy_xccy_curve_system = jpy_curve_system;
-
-        // usd curve system
-        Interest_Rate_Curve_System usd_curve_system(start_date, "USD");
-
-        Interest_Rate_Curve_Ptr usd_discounting_curve(new Interest_Rate_Curve(usd_discounting_instruments, LINEAR_INTERPOLATION, FLAT_EXTRAPOLATION));
-        Interest_Rate_Curve_Ptr usd_forecasting_qu_curve(new Interest_Rate_Curve(usd_qu_forecasting_instruments, LINEAR_INTERPOLATION, FLAT_EXTRAPOLATION));
-
-        usd_curve_system.add_curve("DISCOUNTING", "", NONE_FREQUENCY, usd_discounting_curve);
-        usd_curve_system.add_curve("FORECASTING", "LIBOR", QUARTERLY, usd_forecasting_qu_curve);
-
-        jpy_xccy_curve_system.add_external_curve_system(usd_curve_system);
-
-        // bootstrap the curve
-        jpy_xccy_curve_system.bootstrap();
-
-        cout << "JPY XCCY Curve details" << endl;
-        cout << jpy_xccy_curve_system << endl;
+        usd_discounting_instruments.push_back(deposit_ptr);
       }
+
+      vector<Instrument_Ptr> usd_qu_forecasting_instruments;
+      for (int i = 1; i < 11; i++)
+      {
+        ostringstream tenor_stream;
+
+        tenor_stream << i << "Y";
+        Tenor tenor(tenor_stream.str(), us_holidays, MODIFIED_FOLLOWING);
+        Date end_date = start_date + tenor;
+        FlowTable flow_table_leg1(start_date, end_date, QUARTERLY, us_holidays, ACT_365, MODIFIED_FOLLOWING, i / 4 / 100.0);
+        FlowTable flow_table_leg2(start_date, end_date, QUARTERLY, us_holidays, ACT_365, MODIFIED_FOLLOWING, 0, i / 4 * 0.0001);
+
+        Swap_Ptr swap_ptr(new Swap(usd_ccy, "", flow_table_leg1, usd_ccy, "LIBOR", flow_table_leg2));
+        usd_qu_forecasting_instruments.push_back(swap_ptr);
+      }
+
+      // usd curve system
+      Interest_Rate_Curve_System_Ptr usd_curve_system(new Interest_Rate_Curve_System(start_date, usd_ccy));
+
+      Interest_Rate_Curve_Ptr usd_discounting_curve(new Interest_Rate_Curve(usd_discounting_instruments, LINEAR_INTERPOLATION, FLAT_EXTRAPOLATION));
+      Interest_Rate_Curve_Ptr usd_forecasting_qu_curve(new Interest_Rate_Curve(usd_qu_forecasting_instruments, LINEAR_INTERPOLATION, FLAT_EXTRAPOLATION));
+
+      usd_curve_system->add_curve("DISCOUNTING", "", NONE_FREQUENCY, usd_discounting_curve);
+      usd_curve_system->add_curve("FORECASTING", "LIBOR", QUARTERLY, usd_forecasting_qu_curve);
+
+      vector<Instrument_Ptr> xccy_qu_forecasting_instruments;
+      for (int i = 1; i < 11; i++)
+      {
+        ostringstream tenor_stream;
+
+        tenor_stream << i << "Y";
+        Tenor tenor(tenor_stream.str(), us_holidays, MODIFIED_FOLLOWING);
+        Date end_date = start_date + tenor;
+        FlowTable flow_table_leg1(start_date, end_date, QUARTERLY, japan_holidays, ACT_365, MODIFIED_FOLLOWING);
+        FlowTable flow_table_leg2(start_date, end_date, QUARTERLY, us_holidays, ACT_365, MODIFIED_FOLLOWING, i / 4 * 0.0001);
+
+        Swap_Ptr swap_ptr(new Swap(jpy_ccy, "LIBOR", flow_table_leg1, usd_ccy, "LIBOR", flow_table_leg2));
+        xccy_qu_forecasting_instruments.push_back(swap_ptr);
+      }
+
+      Interest_Rate_Curve_Ptr xccy_discounting_curve(new Interest_Rate_Curve(xccy_qu_forecasting_instruments, LINEAR_INTERPOLATION, FLAT_EXTRAPOLATION));
+
+      jpy_xccy_curve_system->add_external_curve_system(usd_curve_system, xccy_discounting_curve);
+
+      // bootstrap the curve
+      jpy_xccy_curve_system->bootstrap();
+
+      cout << "JPY XCCY Curve details" << endl;
+      cout << jpy_xccy_curve_system << endl;
     }
   }
     
